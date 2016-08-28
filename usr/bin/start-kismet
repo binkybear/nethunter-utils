@@ -26,11 +26,6 @@ if [ ! -f $gpsfile ];then
   echo "$gpsfile not found, try starting/restarting gps from Nethunter app"
 else
   echo "$gpsfile found!"
-  while true
-  do
-    /usr/bin/tail -f $gpsfile | netcat -l -p 2001
-  done
-  /usr/sbin/gpsd -n tcp://127.0.0.1:2001
 fi
 }
 
@@ -53,6 +48,13 @@ else
 	echo -e "\e[92mWLAN1: FOUND\e[0m"
 fi
 
+}
+
+f_gpsd(){
+    echo "Starting GPSD and netcat"
+    /usr/bin/tail -f $gpsfile | netcat -l 127.0.0.1 -p 2001 &
+    sleep 4
+    /usr/sbin/gpsd -n tcp://127.0.0.1:2001
 }
 
 f_kismet(){
@@ -115,6 +117,7 @@ f_checkwlan1
 
 #  And I think it's gonna be a long long time...
 
+f_gpsd
 f_kismet
 f_giskismet
 f_kismet_save
@@ -122,4 +125,3 @@ f_kismet_save
 # Till touch down brings me round again to find
 
 f_cleanup
-
