@@ -21,29 +21,17 @@ fi
 f_check_gpsd(){
 
 gpsfile=/tmp/gps
-gpsfileout=/tmp/gps_out
 
 if [ ! -f $gpsfile ];then
   echo "$gpsfile not found, try starting/restarting gps from Nethunter app"
 else
   echo "$gpsfile found!"
-fi
-
-if [ ! -L $gpsfileout ]; then
   while true
   do
     /usr/bin/tail -f $gpsfile | netcat -l -p 2001
   done
   /usr/sbin/gpsd -n tcp://127.0.0.1:2001
-  #echo "$gpsfile not found, starting socat"
-  # Broadcast GPS on localhost 2001
-
-  #/usr/bin/tail -f /tmp/gps | /usr/bin/socat STDIN PTY,link=/tmp/gps_out &
-  #chmod 777 /tmp/gps_out
-  #echo "Starting GPSD on /tmp/gps_out"
-  #/usr/sbin/gpsd -n /tmp/gps_out
 fi
-
 }
 
 f_checkwlan1(){
@@ -111,9 +99,8 @@ fi
 
 f_cleanup(){
 pkill gpsd
-pkill socat
-pkill nc
-rm -f /tmp/gps_out
+pkill netcat
+pkill kismet
 rm -f /tmp/gps
 }
 
