@@ -30,10 +30,12 @@ else
 fi
 
 if [ ! -L $gpsfileout ]; then
-  echo "$gpsfile not found, starting socat"
-  /usr/bin/tail -f /tmp/gps | /usr/bin/socat STDIN PTY,link=/tmp/gps_out &
-  echo "Starting GPSD on /tmp/gps_out"
-  /usr/bin/gpsd -n /tmp/gps_out
+  # Read the GPS file, broadcast locally to 2001, connect to 2001 with GPSD, Kismet reads GPSD 
+  while true
+  do
+    /usr/bin/tail -f $gpsfile | netcat -l -p 2001
+  done
+  /usr/sbin/gpsd -n tcp://127.0.0.1:2001
 fi
 
 }
@@ -104,6 +106,7 @@ fi
 f_cleanup(){
 pkill gpsd
 pkill socat
+pkill nc
 rm -f /tmp/gps_out
 rm -f /tmp/gps
 }
